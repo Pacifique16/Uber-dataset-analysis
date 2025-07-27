@@ -1,160 +1,140 @@
+# **🚕 Uber Fares Analysis with Power BI**
 
+A full-cycle data analysis project using **Python (Pandas)** and **Power BI** to uncover insights from the Uber Fares Dataset. This project demonstrates real-world data wrangling, exploratory data analysis, and interactive dashboard development for data storytelling.
 
-# **🚕 Uber Fares Dataset Analysis using Power BI**
-
-This project explores Uber ride data using **Python for data preparation** and **Power BI for visualization and storytelling**. From cleaning raw fare records to building a powerful interactive dashboard, this project uncovers how time, distance, and location affect fare pricing.
-
----
-
-## 📦 Dataset
-
-* **Source**: [Kaggle – Uber Fares Dataset](https://www.kaggle.com/datasets/yasserh/uber-fares-dataset)
-* **Size**: 17,847 rows after cleaning
-* **Features**:
-
-  * Fare amount
-  * Pickup & dropoff coordinates
-  * Pickup timestamp
-  * Passenger count
-
----
-
-## 💻 Technologies Used
-
-* Python (Pandas, NumPy, Seaborn, Matplotlib)
-* Google Colab (for scripting & data cleaning)
-* Power BI Desktop (for dashboard creation)
-* GitHub (for hosting code and deliverables)
-
----
+<br>
 
 ## 👨‍🎓 Author
+ **NAME**:   Pacifique HARERIMANA
+ <br>
+ **ID**:        26937
+ <br>
+ **CONCENTRATION**:   Software Engineering
 
-**Pacifique HARERIMANA**
-*AUCA – Introduction to Big Data Analytics (INSY 8413)*
-Instructor: Eric Maniraguha
 
----
+# 🚦 PHASE 1: Dataset Understanding & Cleaning
 
-## 🧹 Data Preparation in Python
+### 📦 Dataset Source
 
-Cleaned, transformed, and enriched the dataset using Google Colab.
+* [Uber Fares Dataset – Kaggle](https://www.kaggle.com/datasets/yasserh/uber-fares-dataset)
+
+### 🧾 Initial Columns:
+
+* `key`, `fare_amount`, `pickup_datetime`, `pickup_longitude`, `pickup_latitude`, `dropoff_longitude`, `dropoff_latitude`, `passenger_count`
+
+### ✅ Steps Performed:
 
 ```python
-import pandas as pd
-
-# Load and inspect data
+# Load Data
 df = pd.read_csv("uber.csv")
 
-# Drop unnecessary columns
+# Drop extra columns
 df.drop(columns=["Unnamed: 0", "key"], inplace=True)
 
-# Convert to datetime
+# Convert datetime
 df['pickup_datetime'] = pd.to_datetime(df['pickup_datetime'], errors='coerce')
 
-# Drop missing records
+# Drop missing rows
 df.dropna(inplace=True)
 ```
 
-✅ **Final shape**: 17,847 rows × 7 columns
-📷 *Screenshot: Data preview in Colab*
+📷 *Screenshot of initial DataFrame and .info() output*
+![data\_head](your_screenshot_path)
 
----
 
-## 🧠 Feature Engineering
 
-Added useful analytical fields:
+# 📊 PHASE 2: Exploratory Data Analysis (EDA)
+
+### 🔍 Descriptive Stats
 
 ```python
-# Calculate ride distance using Haversine formula
-from numpy import radians, sin, cos, sqrt, arctan2
+df.describe()
+```
+<img width="1320" height="523" alt="describe" src="https://github.com/user-attachments/assets/d0f1eec4-b199-4833-b167-02a6a35c9750" />
 
-def haversine(lat1, lon1, lat2, lon2):
-    R = 6371  # Earth's radius in km
-    dlat = radians(lat2 - lat1)
-    dlon = radians(lon2 - lon1)
-    a = sin(dlat/2)**2 + cos(radians(lat1)) * cos(radians(lat2)) * sin(dlon/2)**2
-    return 2 * R * arctan2(sqrt(a), sqrt(1-a))
+### 📌 Outlier Check
 
-df['distance_km'] = haversine(
+```python
+print("Max Fare:", df['fare_amount'].max())  # 350.0
+```
+<img width="1397" height="507" alt="outlier detection" src="https://github.com/user-attachments/assets/ade524f6-bd1c-4057-9b4f-e624f4aa320c" />
+
+
+
+# 📏 PHASE 3: Feature Engineering
+
+### 🌍 Haversine Distance Formula
+
+```python
+def haversine_distance(lat1, lon1, lat2, lon2):
+    # simplified for readability
+    ...
+
+df['distance_km'] = haversine_distance(
     df['pickup_latitude'], df['pickup_longitude'],
     df['dropoff_latitude'], df['dropoff_longitude']
 )
+```
 
-# Time-based features
+### 🕒 Time Features
+
+```python
 df['hour'] = df['pickup_datetime'].dt.hour
+df['day'] = df['pickup_datetime'].dt.day
 df['month'] = df['pickup_datetime'].dt.month
 df['weekday'] = df['pickup_datetime'].dt.dayofweek
 df['peak_hour'] = df['hour'].apply(lambda x: 1 if x in [7,8,9,17,18,19] else 0)
 ```
+<img width="691" height="266" alt="hour, day, month, weekday, peak time," src="https://github.com/user-attachments/assets/7246c090-e747-4874-b1ba-dd716a647f25" />
 
-📷 *Screenshot: Feature columns in DataFrame*
 
----
 
-## 📤 Export to Power BI
+
+
+# 💾 PHASE 4: Export for Power BI
 
 ```python
 df.to_csv("uber_cleaned.csv", index=False)
-
-# Trigger download in Colab
-from google.colab import files
-files.download("uber_cleaned.csv")
 ```
 
-📷 *Screenshot: Export and download step in Colab*
 
----
 
-## 📊 Power BI Dashboard Overview
+# 📈 PHASE 5: Power BI Visualization Dashboard
 
-The final dashboard includes multiple visuals with slicers, filters, and interactivity.
+> 📍 **Power BI File**: `uber_fare_dashboard.pbix`
 
-| 🔎 Insight                 | 📈 Chart Type                |
-| -------------------------- | ---------------------------- |
-| Fare distribution          | Histogram (binned bar chart) |
-| Peak hours of travel       | Line chart                   |
-| Trends across weekdays     | Clustered column chart       |
-| Seasonal/monthly variation | Line chart                   |
-| Ride length estimation     | Based on distance            |
-| Pickup location patterns   | Map/Scatter                  |
+### ✅ Completed Visuals:
 
-📷 *Screenshots: Each visual on dashboard*
+| Visual                | Type               | Insight              |
+| --------------------- | ------------------ | -------------------- |
+| **Fare Distribution** | Histogram          | Pricing spread       |
+| **Fares by Hour**     | Line Chart         | Peak times           |
+| **Fares by Weekday**  | Column Chart       | Weekly trends        |
+| **Fares by Month**    | Line Chart         | Seasonal variation   |
+| **Geographic Map**    | Map/Scatter        | Pickup hot zones     |
+| **Ride Duration**     | Proxy via distance | Trip length behavior |
 
----
-
-## 🎯 Key Insights
-
-* 🚕 Most rides are **short-distance**, low-fare trips (\$5–\$20)
-* 🕒 **Evening hours** (5–7 PM) have the highest ride volume
-* 🗓️ Fridays and Saturdays record **higher average fares**
-* 🌍 Dense ride activity in **central urban areas** (via map)
-* 📏 Fares generally scale with distance — but outliers exist
-
----
-
-## 🧠 Unique Value
-
-To enhance this project and stand out:
-
-✅ Added a **fare binning DAX column** for histogram clarity
-✅ Used a **custom scatter chart** workaround for map when native maps were disabled
-✅ Applied **interactive slicers** to allow users to filter by:
-
-* Hour of day
-* Weekday
-* Peak hour
-* Passenger count
-
----
+<img width="1347" height="750" alt="1" src="https://github.com/user-attachments/assets/38d48cb6-e222-407c-a9ef-c0b98b8819ba" />
+<img width="1166" height="627" alt="2" src="https://github.com/user-attachments/assets/aa3b692d-bbf6-4c19-9e73-0f15ce269313" />
+<img width="1147" height="651" alt="3" src="https://github.com/user-attachments/assets/29b4be82-2512-42f8-aaf8-ab5b82b864d8" />
+<img width="1061" height="596" alt="4" src="https://github.com/user-attachments/assets/c16597d4-f6b1-4b07-8c2f-147c39a3d28b" />
 
 
 
-## 💬 Final Thought
 
-> "A good dashboard doesn’t just show data — it tells a story."
-> This project transforms raw Uber data into meaningful insights that could help any urban ride-sharing service optimize operations.
+# 🧠 PHASE 6: Analytical Insights
 
----
+* 🕛 Most rides occur between **5 PM – 7 PM** (evening peak)
+* 📆 Friday and Saturday show **higher fare averages**
+* 🌍 Ride density clusters in **downtown areas** (NYC zone)
+* 📉 Most fares fall between **\$5 – \$20**
+* 📏 Longest rides show proportionally higher fares, but outliers exist
 
+
+
+
+# 🧠 Final Words of Wisdom
+
+> “Data is the new oil, and dashboards are the refinery.”
+> Let your dashboard speak louder than rows of numbers.
 
